@@ -25,6 +25,8 @@
 #include "OnsetDetectionFunction.h"
 #include "CircularBuffer.h"
 #include <vector>
+#include <memory>
+#include <array>
 
 //=======================================================================
 /** The main beat tracking class and the interface to the BTrack
@@ -66,7 +68,7 @@ public:
      * @param frame a pointer to an array containing an audio frame. The number of samples should 
      * match the frame size that the algorithm was initialised with.
      */
-    void processAudioFrame (double* frame);
+    void processAudioFrame (const std::vector<double>& frame);
     
     /** Add new onset detection function sample to buffer and apply beat tracking 
      * @param sample an onset detection function sample
@@ -153,7 +155,7 @@ private:
      * @param x a pointer to an array containing onset detection function samples
      * @param N the length of the array, x
      */
-    void adaptiveThreshold (double* x, int N);
+    void adaptiveThreshold (std::vector<double>& x, int N);
     
     /** Calculates the mean of values in an array between index locations [startIndex,endIndex]
      * @param array a pointer to an array that contains the values we wish to find the mean from
@@ -161,23 +163,33 @@ private:
      * @param endIndex the final index to which we would like to calculate the mean
      * @returns the mean of the sub-section of the array
      */
-    double calculateMeanOfArray (double* array, int startIndex, int endIndex);
+    double calculateMeanOfArray (const std::vector<double>& array, int startIndex, int endIndex);
     
     /** Normalises a given array
      * @param array a pointer to the array we wish to normalise
      * @param N the length of the array
      */
-    void normaliseArray (double* array, int N);
+    void normaliseArray (std::vector<double>& array, int N);
     
     /** Calculates the balanced autocorrelation of the smoothed onset detection function
      * @param onsetDetectionFunction a pointer to an array containing the onset detection function
      */
-    void calculateBalancedACF (double* onsetDetectionFunction);
+    void calculateBalancedACF (const std::vector<double>& onsetDetectionFunction);
     
     /** Calculates the output of the comb filter bank */
     void calculateOutputOfCombFilterBank();
 	
     //=======================================================================
+    
+#ifdef USE_KISS_FFT
+    std::vector<kiss_fft_cpx> fftIn;                    /**< FFT input samples, in complex form */
+    std::vector<kiss_fft_cpx> fftOut;                   /**< FFT output samples, in complex form */
+    kiss_fft_cfg cfgForwards;               /**< Kiss FFT configuration */
+    kiss_fft_cfg cfgBackwards;              /**< Kiss FFT configuration */
+#endif
+    // HACK: There is somewhere here a buffer overflow.. wasn't able to track it down. 
+    std::array<double, 1024*4> protection;
+
 
     /** An OnsetDetectionFunction instance for calculating onset detection functions */
     OnsetDetectionFunction odf;
@@ -188,15 +200,15 @@ private:
     CircularBuffer onsetDF;                 /**< to hold onset detection function */
     CircularBuffer cumulativeScore;         /**< to hold cumulative score */
     
-    double resampledOnsetDF[512];           /**< to hold resampled detection function */
-    double acf[512];                        /**<  to hold autocorrelation function */
-    double weightingVector[128];            /**<  to hold weighting vector */
-    double combFilterBankOutput[128];       /**<  to hold comb filter output */
-    double tempoObservationVector[41];      /**<  to hold tempo version of comb filter output */
-    double delta[41];                       /**<  to hold final tempo candidate array */
-    double prevDelta[41];                   /**<  previous delta */
-    double prevDeltaFixed[41];              /**<  fixed tempo version of previous delta */
-    double tempoTransitionMatrix[41][41];   /**<  tempo transition matrix */
+    std::vector<double> resampledOnsetDF;           /**< to hold resampled detection function */
+    std::vector<double> acf;                        /**<  to hold autocorrelation function */
+    std::vector<double> weightingVector;            /**<  to hold weighting vector */
+    std::vector<double> combFilterBankOutput;       /**<  to hold comb filter output */
+    std::vector<double> tempoObservationVector;      /**<  to hold tempo version of comb filter output */
+    std::vector<double> delta;                       /**<  to hold final tempo candidate array */
+    std::vector<double> prevDelta;                   /**<  previous delta */
+    std::vector<double> prevDeltaFixed;              /**<  fixed tempo version of previous delta */
+    std::vector<std::vector<double>> tempoTransitionMatrix;   /**<  tempo transition matrix */
     
 	//=======================================================================
     // parameters
@@ -221,13 +233,6 @@ private:
     fftw_plan acfBackwardFFT;               /**< inverse fftw plan for calculating auto-correlation function */
     fftw_complex* complexIn;                /**< to hold complex fft values for input */
     fftw_complex* complexOut;               /**< to hold complex fft values for output */
-#endif
-    
-#ifdef USE_KISS_FFT
-    kiss_fft_cfg cfgForwards;               /**< Kiss FFT configuration */
-    kiss_fft_cfg cfgBackwards;              /**< Kiss FFT configuration */
-    kiss_fft_cpx* fftIn;                    /**< FFT input samples, in complex form */
-    kiss_fft_cpx* fftOut;                   /**< FFT output samples, in complex form */
 #endif
 
 };

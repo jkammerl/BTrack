@@ -103,7 +103,7 @@ public:
      * @param buffer a pointer to an array containing the audio samples to be processed
      * @returns the onset detection function sample
      */
-	double calculateOnsetDetectionFunctionSample (double* buffer);
+	double calculateOnsetDetectionFunctionSample (const std::vector<double>& buffer);
     
     /** Set the detection function type 
      * @param onsetDetectionFunctionType_ the type of onset detection function to use - (see OnsetDetectionFunctionType)
@@ -188,8 +188,8 @@ private:
     
 #ifdef USE_KISS_FFT
     kiss_fft_cfg cfg;                   /**< Kiss FFT configuration */
-    kiss_fft_cpx* fftIn;                /**< FFT input samples, in complex form */
-    kiss_fft_cpx* fftOut;               /**< FFT output samples, in complex form */
+    std::vector<kiss_fft_cpx> fftIn;                /**< FFT input samples, in complex form */
+    std::vector<kiss_fft_cpx> fftOut;               /**< FFT output samples, in complex form */
     std::vector<std::vector<double> > complexOut;
 #endif
 	
