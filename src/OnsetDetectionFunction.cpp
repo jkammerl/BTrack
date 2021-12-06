@@ -72,10 +72,6 @@ void OnsetDetectionFunction::initialise(int hopSize_, int frameSize_,
 
   // initialise previous magnitude spectrum to zero
   for (int i = 0; i < frameSize; i++) {
-    assert(i < prevMagSpec.size());
-    assert(i < prevPhase.size());
-    assert(i < prevPhase2.size());
-    assert(i < frame.size());
     prevMagSpec[i] = 0.0;
     prevPhase[i] = 0.0;
     prevPhase2[i] = 0.0;
@@ -185,8 +181,6 @@ double OnsetDetectionFunction::energyEnvelope() {
 
   // sum the squares of the samples
   for (int i = 0; i < frameSize; i++) {
-    assert(i < frame.size());
-
     sum = sum + (frame[i] * frame[i]);
   }
 
@@ -202,7 +196,6 @@ double OnsetDetectionFunction::energyDifference() {
 
   // sum the squares of the samples
   for (int i = 0; i < frameSize; i++) {
-    assert(i < frame.size());
     sum = sum + (frame[i] * frame[i]);
   }
 
@@ -227,15 +220,10 @@ double OnsetDetectionFunction::spectralDifference() {
 
   // compute first (N/2)+1 mag values
   for (int i = 0; i < (frameSize / 2) + 1; i++) {
-    assert(i < magSpec.size());
-    assert(i < complex_spec_.size());
     magSpec[i] = sqrt(pow(complex_spec_[i].real(), 2) + pow(complex_spec_[i].imag(), 2));
   }
   // mag spec symmetric above (N/2)+1 so copy previous values
   for (int i = (frameSize / 2) + 1; i < frameSize; i++) {
-    assert(i < magSpec.size());
-    assert(frameSize - i < magSpec.size());
-    assert(frameSize - i >= 0);
     magSpec[i] = magSpec[frameSize - i];
   }
 
@@ -243,9 +231,6 @@ double OnsetDetectionFunction::spectralDifference() {
 
   for (int i = 0; i < frameSize; i++) {
     // calculate difference
-    assert(i < magSpec.size());
-    assert(i < prevMagSpec.size());
-
     diff = magSpec[i] - prevMagSpec[i];
 
     // ensure all difference values are positive
@@ -258,9 +243,6 @@ double OnsetDetectionFunction::spectralDifference() {
 
     // store magnitude spectrum bin for next detection function sample
     // calculation
-    assert(i < magSpec.size());
-    assert(i < prevMagSpec.size());
-
     prevMagSpec[i] = magSpec[i];
   }
 
@@ -277,15 +259,10 @@ double OnsetDetectionFunction::spectralDifferenceHWR() {
 
   // compute first (N/2)+1 mag values
   for (int i = 0; i < (frameSize / 2) + 1; i++) {
-    assert(i < magSpec.size());
     magSpec[i] = sqrt(pow(complex_spec_[i].real(), 2) + pow(complex_spec_[i].imag(), 2));
   }
   // mag spec symmetric above (N/2)+1 so copy previous values
   for (int i = (frameSize / 2) + 1; i < frameSize; i++) {
-    assert(i < magSpec.size());
-    assert(frameSize - i < magSpec.size());
-    assert(frameSize - i >= 0);
-
     magSpec[i] = magSpec[frameSize - i];
   }
 
@@ -293,8 +270,6 @@ double OnsetDetectionFunction::spectralDifferenceHWR() {
 
   for (int i = 0; i < frameSize; i++) {
     // calculate difference
-    assert(i < magSpec.size());
-    assert(i < prevMagSpec.size());
     diff = magSpec[i] - prevMagSpec[i];
 
     // only add up positive differences
@@ -305,9 +280,6 @@ double OnsetDetectionFunction::spectralDifferenceHWR() {
 
     // store magnitude spectrum bin for next detection function sample
     // calculation
-    assert(i < magSpec.size());
-    assert(i < prevMagSpec.size());
-
     prevMagSpec[i] = magSpec[i];
   }
 
@@ -327,10 +299,6 @@ double OnsetDetectionFunction::phaseDeviation() {
   // compute phase values from fft output and sum deviations
   for (int i = 0; i < frameSize; i++) {
     // calculate phase value
-    assert(i < phase.size());
-    assert(i < magSpec.size());
-    assert(i < prevPhase.size());
-    assert(i < prevPhase2.size());
     phase[i] = atan2(complex_spec_[i].imag(), complex_spec_[i].real());
 
     // calculate magnitude value
@@ -372,12 +340,6 @@ double OnsetDetectionFunction::complexSpectralDifference() {
   // compute phase values from fft output and sum deviations
   for (int i = 0; i < frameSize; i++) {
     // calculate phase value
-    assert(i < phase.size());
-    assert(i < magSpec.size());
-    assert(i < prevMagSpec.size());
-    assert(i < prevPhase.size());
-    assert(i < prevPhase2.size());
-
     phase[i] = atan2(complex_spec_[i].imag(), complex_spec_[i].real());
 
     // calculate magnitude value

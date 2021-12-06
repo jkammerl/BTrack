@@ -1,4 +1,3 @@
-#include <cassert>
 #include <ccomplex>
 #include <vector>
 
@@ -139,8 +138,6 @@ void SpectralAnalysisImpl::calculateHanningWindow() {
 
   // Hanning window calculation
   for (int n = 0; n < fft_size_; n++) {
-    assert(n < window_.size());
-
     window_[n] = 0.5 * (1 - cos(2 * M_PI * (n / N)));
   }
 }
@@ -155,8 +152,6 @@ void SpectralAnalysisImpl::calclulateHammingWindow() {
 
   // Hamming window calculation
   for (int n = 0; n < fft_size_; n++) {
-    assert(n < window_.size());
-
     window_[n] = 0.54 - (0.46 * cos(2 * M_PI * (n_val / N)));
     n_val = n_val + 1;
   }
@@ -194,8 +189,6 @@ void SpectralAnalysisImpl::calculateTukeyWindow() {
 
   for (int n = 0; n < fft_size_; n++)  // left taper
   {
-    assert(n < window_.size());
-
     if ((n_val >= 0) && (n_val <= (alpha * (N / 2)))) {
       window_[n] = 1.0;
     } else if ((n_val <= 0) && (n_val >= (-1 * alpha * (N / 2)))) {
@@ -212,7 +205,6 @@ void SpectralAnalysisImpl::calculateTukeyWindow() {
 void SpectralAnalysisImpl::calculateRectangularWindow() {
   // Rectangular window calculation
   for (int n = 0; n < fft_size_; n++) {
-    assert(n < window_.size());
     window_[n] = 1.0;
   }
 }

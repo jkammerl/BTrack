@@ -50,7 +50,6 @@ public:
     /** Add a new sample to the end of the buffer */
     void addSampleToEnd (double v)
     {
-        assert(writeIndex<buffer.size());
         buffer[writeIndex] = v;
         writeIndex = (writeIndex + 1) % buffer.size();
     }
