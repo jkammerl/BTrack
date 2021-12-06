@@ -22,11 +22,14 @@
 #ifndef __BTRACK_H
 #define __BTRACK_H
 
-#include "OnsetDetectionFunction.h"
-#include "CircularBuffer.h"
 #include <vector>
 #include <memory>
 #include <array>
+
+#include "OnsetDetectionFunction.h"
+#include "CircularBuffer.h"
+#include "SpectralAnalysis.h"
+
 
 //=======================================================================
 /** The main beat tracking class and the interface to the BTrack
@@ -55,20 +58,6 @@ public:
     
     /** Destructor */
     ~BTrack();
-    
-    //=======================================================================
-    /** Updates the hop and frame size used by the beat tracker 
-     * @param hopSize the hop size in audio samples
-     * @param frameSize the frame size in audio samples
-     */
-    void updateHopAndFrameSize (int hopSize_, int frameSize_);
-    
-    //=======================================================================
-    /** Process a single audio frame 
-     * @param frame a pointer to an array containing an audio frame. The number of samples should 
-     * match the frame size that the algorithm was initialised with.
-     */
-    void processAudioFrame (const std::vector<double>& frame);
     
     /** Add new onset detection function sample to buffer and apply beat tracking 
      * @param sample an onset detection function sample
@@ -181,19 +170,8 @@ private:
 	
     //=======================================================================
     
-#ifdef USE_KISS_FFT
-    std::vector<kiss_fft_cpx> fftIn;                    /**< FFT input samples, in complex form */
-    std::vector<kiss_fft_cpx> fftOut;                   /**< FFT output samples, in complex form */
-    kiss_fft_cfg cfgForwards;               /**< Kiss FFT configuration */
-    kiss_fft_cfg cfgBackwards;              /**< Kiss FFT configuration */
-#endif
-    // HACK: There is somewhere here a buffer overflow.. wasn't able to track it down. 
-    std::array<double, 1024*4> protection;
-
-
-    /** An OnsetDetectionFunction instance for calculating onset detection functions */
-    OnsetDetectionFunction odf;
-    
+    std::unique_ptr<SpectralAnalysis> spectral_analysis_;
+   
     //=======================================================================
 	// buffers
     

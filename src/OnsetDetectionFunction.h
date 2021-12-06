@@ -22,15 +22,10 @@
 #ifndef __ONSETDETECTIONFUNCTION_H
 #define __ONSETDETECTIONFUNCTION_H
 
-#ifdef USE_FFTW
-#include "fftw3.h"
-#endif
-
-#ifdef USE_KISS_FFT
-#include "kiss_fft.h"
-#endif
-
 #include <vector>
+#include <ccomplex>
+
+#include "SpectralAnalysis.h"
 
 //=======================================================================
 /** The type of onset detection function to calculate */
@@ -47,18 +42,7 @@ enum OnsetDetectionFunctionType
     HighFrequencySpectralDifference,
     HighFrequencySpectralDifferenceHWR
 };
-
-//=======================================================================
-/** The type of window to use when calculating onset detection function samples */
-enum WindowType
-{
-    RectangularWindow,
-    HanningWindow,
-    HammingWindow,
-    BlackmanWindow,
-    TukeyWindow
-};
-
+ 
 //=======================================================================
 /** A class for calculating onset detection functions. */
 class OnsetDetectionFunction
@@ -72,14 +56,13 @@ public:
      */
 	OnsetDetectionFunction (int hopSize_, int frameSize_);
     
-    
     /** Constructor 
      * @param hopSize_ the hop size in audio samples
      * @param frameSize_ the frame size in audio samples
      * @param onsetDetectionFunctionType_ the type of onset detection function to use - (see OnsetDetectionFunctionType)
      * @param windowType the type of window to use (see WindowType)
      */
-	OnsetDetectionFunction (int hopSize_, int frameSize_, int onsetDetectionFunctionType_, int windowType_);
+	OnsetDetectionFunction (int hopSize_, int frameSize_, int onsetDetectionFunctionType_, WindowType windowType_);
     
     /** Destructor */
 	~OnsetDetectionFunction();
@@ -95,9 +78,8 @@ public:
      * @param hopSize_ the hop size in audio samples
      * @param frameSize_ the frame size in audio samples
      * @param onsetDetectionFunctionType_ the type of onset detection function to use - (see OnsetDetectionFunctionType)
-     * @param windowType the type of window to use (see WindowType)
      */
-	void initialise (int hopSize_, int frameSize_, int onsetDetectionFunctionType_, int windowType_);
+	void initialise (int hopSize_, int frameSize_, int onsetDetectionFunctionType_);
 	
     /** Process input frame and calculate detection function sample 
      * @param buffer a pointer to an array containing the audio samples to be processed
@@ -147,52 +129,19 @@ private:
 	double highFrequencySpectralDifferenceHWR();
 
     //=======================================================================
-    /** Calculate a Rectangular window */
-	void calculateRectangularWindow();
-    
-    /** Calculate a Hanning window */
-	void calculateHanningWindow();
-    
-    /** Calculate a Hamming window */
-	void calclulateHammingWindow();
-    
-    /** Calculate a Blackman window */
-	void calculateBlackmanWindow();
-    
-    /** Calculate a Tukey window */
-	void calculateTukeyWindow();
-
-    //=======================================================================
 	/** Set phase values between [-pi, pi] 
      * @param phaseVal the phase value to process
      * @returns the wrapped phase value
      */
 	double princarg(double phaseVal);
-	
-    void initialiseFFT();
-    void freeFFT();
-	
-	double pi;							/**< pi, the constant */
+
+    SpectralAnalysis spectral_analysis_;
+    std::vector<std::complex<float>> complex_spec_;
 	
 	int frameSize;						/**< audio framesize */
 	int hopSize;						/**< audio hopsize */
 	int onsetDetectionFunctionType;		/**< type of detection function */
-    int windowType;                     /**< type of window used in calculations */
 
-    //=======================================================================
-#ifdef USE_FFTW
-	fftw_plan p;						/**< fftw plan */
-	fftw_complex* complexIn;			/**< to hold complex fft values for input */
-	fftw_complex* complexOut;			/**< to hold complex fft values for output */
-#endif
-    
-#ifdef USE_KISS_FFT
-    kiss_fft_cfg cfg;                   /**< Kiss FFT configuration */
-    std::vector<kiss_fft_cpx> fftIn;                /**< FFT input samples, in complex form */
-    std::vector<kiss_fft_cpx> fftOut;               /**< FFT output samples, in complex form */
-    std::vector<std::vector<double> > complexOut;
-#endif
-	
     //=======================================================================
 	bool initialised;					/**< flag indicating whether buffers and FFT plans are initialised */
 
@@ -200,14 +149,13 @@ private:
     std::vector<double> window;         /**< window */
 	
 	double prevEnergySum;				/**< to hold the previous energy sum value */
-	
+    
     std::vector<double> magSpec;        /**< magnitude spectrum */
     std::vector<double> prevMagSpec;    /**< previous magnitude spectrum */
-	
+
     std::vector<double> phase;          /**< FFT phase values */
     std::vector<double> prevPhase;      /**< previous phase values */
     std::vector<double> prevPhase2;     /**< second order previous phase values */
-
 };
 
 
