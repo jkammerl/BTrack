@@ -349,8 +349,8 @@ void BTrack::calculateTempo() {
   int t_index2;
   // calculate tempo observation vector from beat period observation vector
   for (int i = 0; i < 41; i++) {
-    t_index = (int)round(tempoToLagFactor / ((double)((2 * i) + 80)));
-    t_index2 = (int)round(tempoToLagFactor / ((double)((4 * i) + 160)));
+    t_index = (int)round(tempoToLagFactor / ((double)((2 * i) + 100)));
+    t_index2 = (int)round(tempoToLagFactor / ((double)((4 * i) + 140)));
 
     tempoObservationVector[i] = combFilterBankOutput[std::max(0, t_index - 1)] +
                                 combFilterBankOutput[std::max(0, t_index2 - 1)];
@@ -396,7 +396,7 @@ void BTrack::calculateTempo() {
   }
 
   beatPeriod =
-      round((60.0 * 44100.0) / (((2 * maxind) + 80) * ((double)hopSize)));
+      round((60.0 * 44100.0) / (((2 * maxind) + 100) * ((double)hopSize)));
 
   if (beatPeriod > 0) {
     estimatedTempo = 60.0 / ((((double)hopSize) / 44100.0) * beatPeriod);
